@@ -1,0 +1,136 @@
+{% extends "hospital/base.html" %}
+{% block title %}Doctor Dashboard | MediConnect{% endblock %}
+{% block content %}
+
+<div class="dashboard-head doctor-head">
+  <div>
+    <span class="eyebrow">DOCTOR PORTAL</span>
+    <h1>Dr. {{ doctor.name }}</h1>
+    <p>{{ doctor.specialization }} · {{ doctor.department|default:"General Medicine" }} · {{ doctor.experience }} years experience</p>
+  </div>
+  <div class="duty-status">
+    <span>Today's Duty: <b>{{ attendance.status|default:"Not Marked" }}</b></span>
+    <a class="btn success" href="{% url 'doctor_mark_attendance' 'On Duty' %}">On Duty</a>
+    <a class="btn danger" href="{% url 'doctor_mark_attendance' 'Off Duty' %}">Off Duty</a>
+  </div>
+</div>
+
+<div class="stats doctor-stats">
+  <div><small>Today's Appointments</small><b>{{ today_count }}</b></div>
+  <div><small>Pending</small><b>{{ pending_count }}</b></div>
+  <div><small>Confirmed</small><b>{{ confirmed_count }}</b></div>
+  <div><small>Completed</small><b>{{ completed_count }}</b></div>
+  <div><small>My Patients</small><b>{{ my_patients_count }}</b></div>
+</div>
+
+<div class="care-banner">
+  <div>
+    <b>Doctor Care Workflow</b>
+    <span>Confirm → Patient Check → Medical Report → Prescription → Complete</span>
+  </div>
+  <a class="btn primary" href="{% url 'doctor_patients' %}">View My Patients</a>
+</div>
+
+<div class="panel" id="appointments">
+  <div class="section-title">
+    <div>
+      <h2>Today's Appointments</h2>
+      <p class="muted">{{ today|date:"d M Y" }} · Follow the workflow in order.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Patient</th><th>Time</th><th>Reason</th><th>Status</th><th>Next Step</th>
+      </tr>
+
+      {% for row in today_rows %}
+      {% with a=row.appointment %}
+      <tr>
+        <td>
+          <b>{{ a.patient.name }}</b><br>
+          <small>{{ a.patient.phone }}</small><br>
+          <small>{{ a.patient.gender }} · {{ a.patient.age }} yrs · {{ a.patient.blood_group|default:"Blood group N/A" }}</small>
+        </td>
+        <td><b>{{ a.appointment_time|time:"g:i A" }}</b></td>
+        <td>{{ a.reason }}</td>
+        <td><span class="pill {{ a.status|lower }}">{{ a.status }}</span></td>
+        <td class="actions">
+          {% if a.status == "Pending" %}
+            <a class="action-primary" href="{% url 'doctor_confirm' a.id %}">Confirm Appointment</a>
+            · <a class="danger-link" href="{% url 'doctor_cancel' a.id %}">Cancel</a>
+          {% elif a.status == "Confirmed" %}
+            <a class="action-primary" href="{% url 'doctor_patient_detail' a.patient.id %}">
+              Continue: {{ row.next_action }}
+            </a>
+            <br>
+            {% if row.has_visit %}<span class="workflow-done">✓ Check</span>{% else %}<span class="muted">1. Check</span>{% endif %}
+            ·
+            {% if row.has_record %}<span class="workflow-done">✓ Report</span>{% else %}<span class="muted">2. Report</span>{% endif %}
+            ·
+            {% if row.has_prescription %}<span class="workflow-done">✓ Prescription</span>{% else %}<span class="muted">3. Prescription</span>{% endif %}
+            {% if row.has_visit and row.has_record and row.has_prescription %}
+              · <a href="{% url 'doctor_complete' a.id %}">4. Complete</a>
+            {% endif %}
+          {% elif a.status == "Completed" %}
+            <a class="action-primary" href="{% url 'doctor_patient_detail' a.patient.id %}">View Patient Record</a>
+          {% else %}
+            <span class="muted">Appointment Cancelled</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endwith %}
+      {% empty %}
+      <tr><td colspan="5" class="empty">No appointments scheduled for today.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Upcoming Appointments</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+      {% for row in upcoming_rows %}
+      {% with a=row.appointment %}
+      <tr>
+        <td><b>{{ a.patient.name }}</b><br><small>{{ a.patient.phone }}</small></td>
+        <td>{{ a.appointment_date|date:"d M Y" }}</td>
+        <td>{{ a.appointment_time|time:"g:i A" }}</td>
+        <td>{{ a.reason }}</td>
+        <td><span class="pill {{ a.status|lower }}">{{ a.status }}</span></td>
+        <td>
+          <a class="mini-link" href="{% url 'doctor_patient_detail' a.patient.id %}">View Patient</a>
+        </td>
+      </tr>
+      {% endwith %}
+      {% empty %}
+      <tr><td colspan="6" class="empty">No upcoming appointments.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="two">
+  <div class="panel">
+    <h2>Patient Care Workflow</h2>
+    <div class="workflow-step"><span>1</span><div><b>Confirm Appointment</b><p>Accept the patient's appointment. Today's appointment requires On Duty status.</p></div></div>
+    <div class="workflow-step"><span>2</span><div><b>Patient Check</b><p>Record symptoms, vitals and initial observations for this appointment.</p></div></div>
+    <div class="workflow-step"><span>3</span><div><b>Medical Report</b><p>Enter diagnosis, treatment plan, follow-up and clinical notes.</p></div></div>
+    <div class="workflow-step"><span>4</span><div><b>Prescription</b><p>Add medicine, dosage, duration and instructions.</p></div></div>
+    <div class="workflow-step"><span>5</span><div><b>Complete</b><p>Consultation becomes Completed only after all previous steps are saved.</p></div></div>
+    <a class="btn primary full" style="margin-top:14px" href="{% url 'doctor_patients' %}">Go to My Patients</a>
+  </div>
+
+  <div class="panel">
+    <h2>Doctor Profile</h2>
+    <div class="item"><b>Specialization</b><p>{{ doctor.specialization }}</p></div>
+    <div class="item"><b>Department</b><p>{{ doctor.department|default:"General Medicine" }}</p></div>
+    <div class="item"><b>Phone</b><p>{{ doctor.phone }}</p></div>
+    <div class="item"><b>Email</b><p>{{ doctor.email }}</p></div>
+  </div>
+</div>
+
+{% endblock %}

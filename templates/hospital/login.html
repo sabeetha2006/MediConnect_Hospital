@@ -1,0 +1,25 @@
+{% extends "hospital/base.html" %}
+{% block title %}Login | MediConnect Hospital{% endblock %}
+{% block content %}
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-icon">🏥</div>
+    <span class="eyebrow">MEDICONNECT PORTAL</span>
+    <h1>Welcome back</h1>
+    <p>Login to access your hospital management portal.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+      {% for f in form %}
+      <div class="field">
+        <label>{{ f.label }}</label>{{ f }}
+        {% for e in f.errors %}<small class="error">{{ e }}</small>{% endfor %}
+      </div>
+      {% endfor %}
+      <button class="btn primary full" type="submit">Login Securely</button>
+    </form>
+    <p class="signup">New patient? <a href="{% url 'register' %}">Create a patient account</a></p>
+    <div class="secure-note">🔒 <span>Use the username and password provided by the hospital. Patient registration is available for new patients.</span></div>
+  </div>
+</div>
+{% endblock %}

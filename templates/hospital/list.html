@@ -1,0 +1,4 @@
+{% extends "hospital/base.html" %}{% block content %}
+<div class="dashboard-head"><div><span class="eyebrow">ADMIN</span><h1>{{ title }}</h1><p>Hospital records and management.</p></div></div>
+<div class="panel"><div class="table-wrap"><table>{% for row in rows %}<tr>{% for v in row %}<td>{{ v }}</td>{% endfor %}</tr>{% empty %}<tr><td class="empty">No data available.</td></tr>{% endfor %}</table></div></div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "hospital/base.html" %}
+{% block title %}Medical Desk | MediConnect{% endblock %}
+{% block content %}
+<div class="dashboard-head"><div><span class="eyebrow">MEDICAL DESK</span><h1>Welcome, {{ staff.name }}</h1><p>Manage prescriptions, patient bills and payment status.</p></div><a class="btn primary" href="{% url 'medical_create_bill' %}">＋ Generate Bill</a></div>
+<div class="stats"><div><small>Prescriptions</small><b>{{ prescriptions|length }}</b></div><div><small>Total Bills</small><b>{{ bills|length }}</b></div><div><small>Pending Payments</small><b>{{ pending_bills }}</b></div><div><small>Paid Bills</small><b>{{ paid_bills }}</b></div></div>
+<div class="two">
+  <div class="panel"><h2>💊 Doctor Prescriptions</h2>{% for p in prescriptions %}<div class="item"><b>{{ p.patient.name }}</b> · Dr. {{ p.doctor.name }}<p><b>{{ p.medicine }}</b> — {{ p.dosage }} · {{ p.duration }}</p><p>{{ p.instructions|default:"No instructions" }}</p></div>{% empty %}<p class="muted">No prescriptions yet.</p>{% endfor %}</div>
+  <div class="panel"><h2>💳 Patient Bills</h2>{% for b in bills %}<div class="item"><b>{{ b.patient.name }}</b> · <strong>₹{{ b.total }}</strong><p>Dr. {{ b.appointment.doctor.name }} · {{ b.bill_date|date:"d M Y" }}</p><span class="pill {{ b.payment_status|lower }}">{{ b.payment_status }}</span>{% if b.payment_status == "Pending" %}<a class="mini-link" href="{% url 'medical_mark_bill_paid' b.id %}">Mark Paid</a>{% endif %}</div>{% empty %}<p class="muted">No bills yet.</p>{% endfor %}</div>
+</div>
+{% endblock %}

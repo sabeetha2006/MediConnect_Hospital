@@ -1,0 +1,107 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}MediConnect Hospital{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="{% if request.session.role %}logged-in role-{{ request.session.role }}{% endif %}">
+
+{% if request.session.role == 'admin' %}
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a class="sidebar-brand" href="{% url 'admin_dashboard' %}">
+      <span class="brand-icon">🏥</span><span><b>MediConnect</b><small>Admin Portal</small></span>
+    </a>
+    <div class="sidebar-label">HOSPITAL MANAGEMENT</div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'admin_dashboard' %}">⌂ <span>Dashboard</span></a>
+      <a href="{% url 'doctors' %}">👨‍⚕️ <span>Doctors</span></a>
+      <a href="{% url 'patients' %}">🧑‍🤝‍🧑 <span>Patients</span></a>
+      <a href="{% url 'attendance' %}">🟢 <span>Attendance</span></a>
+      <a href="{% url 'appointments' %}">📅 <span>Appointments</span></a>
+      <a href="{% url 'prescriptions' %}">💊 <span>Prescriptions</span></a>
+      <a href="{% url 'bills' %}">💳 <span>Bills</span></a>
+      <a href="{% url 'medical_staff_list' %}">🧑‍⚕️ <span>Medical Staff</span></a>
+      <a href="{% url 'departments' %}">🏬 <span>Departments</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="sidebar-logout" href="{% url 'logout' %}">↪ <span>Logout</span></a>
+    </div>
+  </aside>
+  <div class="admin-main">
+    <header class="topbar admin-topbar">
+      <a class="brand" href="{% url 'admin_dashboard' %}">🏥 <span>MediConnect</span><small>Hospital Management</small></a>
+      <div class="top-role">Administrator</div>
+    </header>
+
+{% elif request.session.role == 'doctor' %}
+<div class="doctor-shell">
+  <aside class="doctor-sidebar">
+    <a class="sidebar-brand" href="{% url 'doctor_dashboard' %}">
+      <span class="brand-icon">🩺</span><span><b>MediConnect</b><small>Doctor Portal</small></span>
+    </a>
+    <div class="doctor-profile-mini">
+      <span>DOCTOR</span>
+      <b>Dr. {{ request.session.user_name|default:"Doctor" }}</b>
+    </div>
+    <div class="sidebar-label">PATIENT CARE</div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'doctor_dashboard' %}">⌂ <span>Dashboard</span></a>
+      <a href="{% url 'doctor_patients' %}">👥 <span>My Patients</span></a>
+      <a href="{% url 'doctor_dashboard' %}#appointments">📅 <span>Appointments</span></a>
+      <a href="{% url 'doctor_mark_attendance' 'On Duty' %}">🟢 <span>Mark On Duty</span></a>
+      <a href="{% url 'doctor_mark_attendance' 'Off Duty' %}">🔴 <span>Mark Off Duty</span></a>
+    </nav>
+    <div class="doctor-care-note">
+      <b>Care Workflow</b>
+      <small>Patient Check → Medical Report → Prescription → Complete</small>
+    </div>
+    <div class="sidebar-bottom">
+      <a class="sidebar-logout" href="{% url 'logout' %}">↪ <span>Logout</span></a>
+    </div>
+  </aside>
+  <div class="doctor-main">
+    <header class="topbar doctor-topbar">
+      <a class="brand" href="{% url 'doctor_dashboard' %}">🩺 <span>MediConnect</span><small>Doctor Portal</small></a>
+      <div class="top-role">Dr. {{ request.session.user_name|default:"Doctor" }}</div>
+    </header>
+
+{% else %}
+<header class="topbar">
+  <a class="brand" href="{% url 'home' %}">🏥 <span>MediConnect</span><small>Hospital Management</small></a>
+  <nav>
+    {% if request.session.role == 'patient' %}
+      <a href="{% url 'patient_dashboard' %}">Dashboard</a>
+      <a class="nav-logout" href="{% url 'logout' %}">Logout</a>
+    {% elif request.session.role == 'medical' %}
+      <a href="{% url 'medical_dashboard' %}">Dashboard</a>
+      <a class="nav-logout" href="{% url 'logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="nav-login">Login</a>
+    {% endif %}
+  </nav>
+</header>
+{% endif %}
+
+<main class="container{% if request.session.role == 'admin' %} admin-container{% elif request.session.role == 'doctor' %} doctor-container{% endif %}">
+  {% for message in messages %}<div class="alert {{ message.tags }}">{{ message }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+
+{% if request.session.role == 'admin' %}
+    <footer>MediConnect Hospital Management System · Secure • Simple • Connected</footer>
+  </div>
+</div>
+{% elif request.session.role == 'doctor' %}
+    <footer>MediConnect Hospital Management System · Secure • Simple • Connected</footer>
+  </div>
+</div>
+{% else %}
+<footer>MediConnect Hospital Management System · Secure • Simple • Connected</footer>
+{% endif %}
+
+</body>
+</html>

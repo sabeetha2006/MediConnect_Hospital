@@ -1,0 +1,28 @@
+{% extends "hospital/base.html" %}
+{% block title %}My Patients | MediConnect{% endblock %}
+{% block content %}
+<div class="dashboard-head">
+  <div>
+    <span class="eyebrow">PATIENT CARE</span>
+    <h1>My Patients</h1>
+    <p>Patients who have appointments with you. Open a patient to check history and continue the consultation.</p>
+  </div>
+</div>
+
+<div class="patient-grid">
+{% for patient in patients %}
+  <div class="patient-card">
+    <div class="patient-card-top">
+      <div class="patient-avatar">👤</div>
+      <div><b>{{ patient.name }}</b><small>{{ patient.age }} yrs · {{ patient.gender }}</small></div>
+    </div>
+    <div class="patient-info"><span>Blood Group</span><b>{{ patient.blood_group|default:"Not provided" }}</b></div>
+    <div class="patient-info"><span>Phone</span><b>{{ patient.phone }}</b></div>
+    <div class="patient-info"><span>Email</span><b>{{ patient.email }}</b></div>
+    <a class="btn primary full" href="{% url 'doctor_patient_detail' patient.id %}">Open Patient Check</a>
+  </div>
+{% empty %}
+  <div class="panel empty">No patients have appointments with you yet.</div>
+{% endfor %}
+</div>
+{% endblock %}

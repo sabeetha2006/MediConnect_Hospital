@@ -1,0 +1,19 @@
+{% extends "hospital/base.html" %}
+{% block title %}MediConnect Hospital{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <span class="eyebrow">SMART HOSPITAL MANAGEMENT</span>
+    <h1>Healthcare that stays<br><em>connected.</em></h1>
+    <p>Manage appointments, doctor duty, medical records, prescriptions and patient billing in one clean portal.</p>
+    <div class="hero-actions"><a class="btn primary" href="{% url 'login' %}">Login to Portal</a><a class="btn ghost" href="{% url 'register' %}">New Patient? Register</a></div>
+  </div>
+  <div class="hero-card"><div class="pulse">＋</div><h3>Care, coordinated.</h3><p>Appointment → Confirmation → Consultation → Prescription → Billing</p></div>
+</section>
+<div class="feature-grid">
+<div class="feature">📅<h3>Appointments</h3><p>Patients book appointments and track confirmation status.</p></div>
+<div class="feature">🩺<h3>Doctor Portal</h3><p>Doctors manage duty, appointments, visits, records and prescriptions.</p></div>
+<div class="feature">💊<h3>Medical Desk</h3><p>Medical staff manage prescriptions, bills and payment status.</p></div>
+<div class="feature">📊<h3>Admin Control</h3><p>Administrators monitor hospital activity and manage staff and departments.</p></div>
+</div>
+{% endblock %}

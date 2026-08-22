@@ -1,0 +1,31 @@
+{% extends "hospital/base.html" %}
+{% block title %}Admin Dashboard | MediConnect{% endblock %}
+{% block content %}
+<div class="dashboard-head">
+  <div><span class="eyebrow">ADMIN CONTROL CENTER</span><h1>Hospital Overview</h1><p>Manage doctors, patients, appointments, attendance, prescriptions and billing.</p></div>
+  <a class="btn primary" href="{% url 'add_doctor' %}">＋ Add Doctor</a>
+</div>
+<div class="stats">
+  <div><small>Patients</small><b>{{ patients|length }}</b></div>
+  <div><small>Doctors</small><b>{{ doctors|length }}</b></div>
+  <div><small>Appointments</small><b>{{ appointments|length }}</b></div>
+  <div><small>Bills</small><b>{{ bills|length }}</b></div>
+</div>
+<div class="panel">
+  <h2>Today's Doctor Attendance</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Doctor</th><th>Department</th><th>Date</th><th>Status</th></tr>
+    {% for a in attendance %}
+    <tr><td><b>Dr. {{ a.doctor.name }}</b></td><td>{{ a.doctor.department|default:"—" }}</td><td>{{ a.attendance_date|date:"d M Y" }}</td><td><span class="pill {% if a.status == 'On Duty' %}on{% else %}off{% endif %}">{{ a.status }}</span></td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">No attendance marked today.</td></tr>{% endfor %}
+  </table></div>
+</div>
+<div class="panel">
+  <div class="section-title"><div><h2>Recent Appointments</h2><p class="muted">Latest patient appointments across the hospital.</p></div><a class="mini-link" href="{% url 'appointments' %}">View all</a></div>
+  <div class="table-wrap"><table>
+    <tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th></tr>
+    {% for a in appointments|slice:":10" %}<tr><td><b>{{ a.patient.name }}</b></td><td>Dr. {{ a.doctor.name }}</td><td>{{ a.appointment_date|date:"d M Y" }}</td><td>{{ a.appointment_time|time:"g:i A" }}</td><td><span class="pill {{ a.status|lower }}">{{ a.status }}</span></td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">No appointments.</td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endblock %}

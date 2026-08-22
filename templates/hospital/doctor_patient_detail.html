@@ -1,0 +1,138 @@
+{% extends "hospital/base.html" %}
+{% block title %}Patient Check | MediConnect{% endblock %}
+{% block content %}
+
+<div class="dashboard-head">
+  <div>
+    <span class="eyebrow">PATIENT CHECK</span>
+    <h1>{{ patient.name }}</h1>
+    <p>Review the patient and complete the consultation workflow from one place.</p>
+  </div>
+  <a class="btn outline" href="{% url 'doctor_patients' %}">← My Patients</a>
+</div>
+
+<div class="patient-summary">
+  <div class="summary-avatar">👤</div>
+  <div><b>{{ patient.name }}</b><span>{{ patient.age }} years · {{ patient.gender }} · {{ patient.blood_group|default:"Blood group not provided" }}</span></div>
+  <div><span>Phone</span><b>{{ patient.phone }}</b></div>
+  <div><span>Email</span><b>{{ patient.email }}</b></div>
+</div>
+
+<div class="panel">
+  <h2>Consultation Workflow</h2>
+  <p class="muted">For each confirmed appointment, follow this order: <b>Patient Check → Medical Report → Prescription → Complete.</b></p>
+  {% for row in appointment_rows %}
+  <div class="appointment-workflow">
+    <div class="workflow-head">
+      <div>
+        <b>{{ row.appointment.appointment_date|date:"d M Y" }} · {{ row.appointment.appointment_time|time:"g:i A" }}</b>
+        <p>{{ row.appointment.reason }}</p>
+      </div>
+      <span class="pill {{ row.appointment.status|lower }}">{{ row.appointment.status }}</span>
+    </div>
+
+    <div class="workflow-actions">
+      {% if row.appointment.status == "Pending" %}
+        <span class="workflow-note">Confirm the appointment first.</span>
+        <a class="btn primary" href="{% url 'doctor_confirm' row.appointment.id %}">Confirm Appointment</a>
+        <a class="btn outline" href="{% url 'doctor_cancel' row.appointment.id %}">Cancel</a>
+
+      {% elif row.appointment.status == "Confirmed" %}
+        {% if row.has_visit %}
+          <span class="workflow-done">✓ Patient Check done</span>
+        {% else %}
+          <a class="btn primary" href="{% url 'doctor_visit_register' row.appointment.id %}">1. Patient Check</a>
+        {% endif %}
+
+        {% if row.has_record %}
+          <span class="workflow-done">✓ Medical Report done</span>
+        {% elif row.has_visit %}
+          <a class="btn primary" href="{% url 'doctor_record' row.appointment.id %}">2. Medical Report</a>
+        {% else %}
+          <span class="workflow-disabled">2. Medical Report</span>
+        {% endif %}
+
+        {% if row.has_prescription %}
+          <span class="workflow-done">✓ Prescription done</span>
+        {% elif row.has_record %}
+          <a class="btn primary" href="{% url 'doctor_prescription' row.appointment.id %}">3. Prescription</a>
+        {% else %}
+          <span class="workflow-disabled">3. Prescription</span>
+        {% endif %}
+
+        {% if row.has_record and row.has_prescription %}
+          <a class="btn success" href="{% url 'doctor_complete' row.appointment.id %}">4. Complete</a>
+        {% else %}
+          <span class="workflow-disabled">4. Complete</span>
+        {% endif %}
+
+      {% elif row.appointment.status == "Completed" %}
+        <span class="workflow-done">✓ Consultation completed</span>
+        <span class="workflow-done">✓ Medical Report & Prescription available below</span>
+      {% else %}
+        <span class="workflow-note">This appointment was cancelled.</span>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <p class="empty">No appointments found for this patient.</p>
+  {% endfor %}
+</div>
+
+<div class="two">
+  <div class="panel">
+    <h2>Patient Information</h2>
+    <div class="item"><b>Age / Gender</b><p>{{ patient.age }} years · {{ patient.gender }}</p></div>
+    <div class="item"><b>Blood Group</b><p>{{ patient.blood_group|default:"Not provided" }}</p></div>
+    <div class="item"><b>Phone</b><p>{{ patient.phone }}</p></div>
+    <div class="item"><b>Email</b><p>{{ patient.email }}</p></div>
+    <div class="item"><b>Address</b><p>{{ patient.address }}</p></div>
+  </div>
+
+  <div class="panel">
+    <h2>Previous Visits</h2>
+    {% for v in visits %}
+      <div class="item">
+        <b>{{ v.visit_date|date:"d M Y" }}</b>
+        <p><b>Symptoms:</b> {{ v.symptoms|default:"—" }}</p>
+        <p><b>Diagnosis:</b> {{ v.diagnosis|default:"—" }}</p>
+      </div>
+    {% empty %}
+      <p class="muted">No previous visit details.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="two">
+  <div class="panel">
+    <h2>Medical Reports</h2>
+    {% for r in records %}
+      <div class="medical-report-card">
+        <div class="report-title"><b>{{ r.record_date|date:"d M Y" }}</b><span>{{ r.diagnosis|default:"Diagnosis not entered" }}</span></div>
+        <p><b>Symptoms:</b> {{ r.symptoms|default:"—" }}</p>
+        <p><b>Vitals:</b> BP {{ r.blood_pressure|default:"—" }} · Temp {{ r.temperature|default:"—" }} · Weight {{ r.weight|default:"—" }}</p>
+        <p><b>Treatment:</b> {{ r.treatment_plan|default:"—" }}</p>
+        <p><b>Follow-up:</b> {{ r.follow_up_date|date:"d M Y"|default:"Not specified" }}</p>
+        <p>{{ r.notes|default:"" }}</p>
+      </div>
+    {% empty %}
+      <p class="muted">No medical reports yet.</p>
+    {% endfor %}
+  </div>
+
+  <div class="panel">
+    <h2>Prescriptions</h2>
+    {% for p in prescriptions %}
+      <div class="medical-report-card">
+        <div class="report-title"><b>{{ p.medicine }}</b><span>{{ p.created_at|date:"d M Y" }}</span></div>
+        <p><b>Dosage:</b> {{ p.dosage }}</p>
+        <p><b>Duration:</b> {{ p.duration }}</p>
+        <p><b>Instructions:</b> {{ p.instructions|default:"—" }}</p>
+      </div>
+    {% empty %}
+      <p class="muted">No prescriptions yet.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "hospital/base.html" %}
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon">✚</div>
+      <span class="eyebrow">MEDICONNECT</span>
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="form-error">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="form-grid">
+        {% for f in form %}
+        <div class="form-group {% if f.name in 'reason description instructions notes treatment_plan symptoms diagnosis address' %}full{% endif %}">
+          <label>{{ f.label }}</label>
+          {{ f }}
+          {% for e in f.errors %}<small class="error">{{ e }}</small>{% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Save Details</button>
+        {% if back_kwargs %}
+          <a class="btn outline" href="{% url back back_kwargs.patient_id %}">Cancel</a>
+        {% else %}
+          <a class="btn outline" href="{% url back %}">Cancel</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

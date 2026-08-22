@@ -1,0 +1,7 @@
+{% extends "hospital/base.html" %}{% block title %}Patient Registration | MediConnect{% endblock %}{% block content %}
+<div class="form-page"><div class="form-card"><div class="form-header"><div class="form-icon">🩺</div><span class="eyebrow">PATIENT PORTAL</span><h1>Patient Registration</h1><p>Create your secure MediConnect Hospital account</p></div>
+<form method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="form-error">{% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
+<div class="form-grid">{% for f in form %}<div class="form-group {% if f.name == 'address' %}full{% endif %}"><label>{{ f.label }}</label>{{ f }}{% for e in f.errors %}<small class="error">{{ e }}</small>{% endfor %}</div>{% endfor %}</div>
+<div class="secure-note">🔒 <span>Your personal information is kept secure and confidential.</span></div>
+<div class="form-actions"><button class="btn primary">Create Patient Account</button><a href="{% url 'login' %}" class="btn outline">← Back to Login</a></div></form></div></div>
+{% endblock %}
