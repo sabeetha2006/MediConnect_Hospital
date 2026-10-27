@@ -58,3 +58,4 @@ The website has one common login page. Demo credentials are intentionally **not 
 ## Important
 
 If an older project folder already contains `db.sqlite3`, run `python manage.py migrate` first. If the database is from an incompatible older version, delete `db.sqlite3`, run `python manage.py migrate`, then run `python seed_demo.py`.
+<!-- python manage.py runserver -->
